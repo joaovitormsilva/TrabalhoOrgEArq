@@ -817,6 +817,43 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop r0
 	rts
 				
+SorteiaPalavra:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+
+	; Seleciona um numero entre 0 e o tamanho do catalogo
+	load r1, chaveRandom
+	rotl r1, #4		 	; Faz um rotate so pra tentar adicionar um pouco de "caos"
+	loadn r2, #10 			; Numero de palavras no catalogo (ATUALIZAR CASO ADICIONE MAIS)
+	mod r2, r1, r2 			; r2 = chaveRandom % numCatalogo (um numero pseudo randomico)
+
+	; Salva a palavra selecionada
+	loadn r3, #2 			; Tamanho de um endereco de memoria
+	loadn r4, #Catalogo		; Endereco do inicio do catalogo de palavras
+	mul r3, r3, r2
+	add r4, r4, r3			; Pula o tanto de palavras necessarias
+	loadi r4, r4
+
+	store Palavra, r4	; Guarda palavra a ser usada
+
+	; Salva o tamanho da palavra
+	loadn r4, #catTamanhos
+	add r4, r4, r2
+	loadi r4, r4
+
+	store TamanhoPalavra, r4
+	
+
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+
 ;---------------------
 
 ;************************************************************
@@ -1270,164 +1307,34 @@ tela1Linha28 : string "                                        "
 tela1Linha29 : string "                                        "
 
 ; PARTE DO JOGO PASSWORD
-EsperaEnter: 	
-	push r0
-	push r1
-	push r2
 
-	loadn r0, #255	;Se nao digitar nada, tem um espaco
-	loadn r1, #13 	;Codigo ASCII do Enter
-	loadn r2, #0 	;Inicia Contador em zero
-
-	espera_loop:
-		inchar r0
-		inc r2
-		cmp r0, r1
-		jne espera_loop
-
-	store chaveRandom, r2
-
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-ChecaPalavra:
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-
-	loadn r1, #PalavraDigitada 		; Endereco de inicio da palavra
-	load r2, TamanhoPalavra
-	loadn r3, #0 			; Contador de letras
-
-	
-	checaPalavra_Loop:
-		store posLetra, r3
-		add r4, r1, r3		; Pega endereco exato da letra a ser lida
-		loadi r0, r4		; r0 = Mem[r4]
-		store Letra, r0
-
-		call ChecaLetra
-
-		inc r3
-		cmp r3, r2 			; Se tiver acabado a palavra, sai
-		jne checaPalavra_Loop
-
-
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-ChecaLetra: ; r0 = Letra a ser checada com todas as outras
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-	push r5
-	push r6
-
-	load r1, Palavra 	; Endereco da palavra
-	load r2, TamanhoPalavra	
-	loadn r3, #0 		; Contador
-	loadn r5, #0 		; Por padrao, a letra sera branca
-
-	checaLetra_Loop:
-		add r4, r1, r3 		
-		loadi r4, r4		; r4 = Mem[r4] (Letra da palavra certa a ser checada)
-		cmp r0, r4
-		jeq letraPresente
-
-	  checaLetra_Continue:
-		inc r3
-		cmp r2, r3
-		jeq checaLetra_Sai	; Caso ja tenha acabado a palavra, sai do loop
-		jmp checaLetra_Loop
-
-
-	letraPresente:
-		load r6, posLetra
-		cmp r6, r3 			; Caso a letra esteja no lugar certo
-		jne letraAmarela
-		loadn r5, #512 		; Cor verde
-		jmp checaLetra_Sai
-
-		letraAmarela:
-			loadn r5, #2816
-			jmp checaLetra_Continue
-
-
-   checaLetra_Sai:
-   	load r3, posLetra
-	load r4, posCursor
-	add r4, r4, r3		; Pega endereco da posicao certa
-	add r0, r0, r5 		; Colore a letra
-
-	outchar r0, r4
-
-  	pop r6
-	pop r5
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-
-;********************************************************
-;                   IMPRIME STRING
-;********************************************************
-ImprimeLetra: 	; r0 = Letra a ser impressa, r5 = cor da letra, r3 = posicao na palavra
-	push r0
-	push r1
-	push r2
-	push r3
-
-	load r3, posCursor
-	add r3, r3, r2		; Pega endereco da posicao certa
-	add r0, r0, r1 		; Colore a letra
-
-	outchar r0, r3
-
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-
-ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela do primeiro caractere;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
-	push fr		; Protege o registrador de flags
-	push r0	; protege o r0 na pilha para preservar seu valor
-	push r1	; protege o r1 na pilha para preservar seu valor
-	push r2	; protege o r1 na pilha para preservar seu valor
-	push r3	; protege o r3 na pilha para ser usado na subrotina
-	push r4	; protege o r4 na pilha para ser usado na subrotina
-	
-	loadn r3, #'\0'	; Criterio de parada
-
-   ImprimeStr_Loop:	
-		loadi r4, r1
-		cmp r4, r3
-		jeq ImprimeStr_Sai
-		add r4, r2, r4
-		outchar r4, r0
-		inc r0
-		inc r1
-		jmp ImprimeStr_Loop
-	
-   ImprimeStr_Sai:	
-	pop r4	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	pop fr
-	rts
+tela2Linha0  : string "o======================================o"
+tela2Linha1  : string "|             Passos Word              |"
+tela2Linha2  : string "| Como Jogar:                          |"
+tela2Linha3  : string "|  Descubra a senha!                   |"
+tela2Linha4  : string "|  Teste diferentes letras e palavras  |"
+tela2Linha5  : string "|   Amarelo = letra na posicao errada  |"
+tela2Linha6  : string "|   Verde = letra e posicao certas     |"
+tela2Linha7  : string "|                                      |"
+tela2Linha8  : string "|                                      |"
+tela2Linha9  : string "|                                      |"
+tela2Linha10 : string "|                                      |"
+tela2Linha11 : string "|                                      |"
+tela2Linha12 : string "|                                      |"
+tela2Linha13 : string "|                                      |"
+tela2Linha14 : string "|                                      |"
+tela2Linha15 : string "|                                      |"
+tela2Linha16 : string "|                                      |"
+tela2Linha17 : string "|                                      |"
+tela2Linha18 : string "|                                      |"
+tela2Linha19 : string "|                                      |"
+tela2Linha20 : string "|                                      |"
+tela2Linha21 : string "|                                      |"
+tela2Linha22 : string "|                                      |"
+tela2Linha23 : string "|                                      |"
+tela2Linha24 : string "|                                      |"
+tela2Linha25 : string "|                                      |"
+tela2Linha26 : string "|                                      |"
+tela2Linha27 : string "|                                      |"
+tela2Linha28 : string "|                                      |"
+tela2Linha29 : string "o======================================o"
