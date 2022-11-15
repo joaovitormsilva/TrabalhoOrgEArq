@@ -1,14 +1,14 @@
 ; Blackout
 
-; Jansen Caik Ferreira Freitas
-; Leonardo Minoru Iwashima
-; Paulo Marcos Ordonha
-
 jmp main
 
 ; Variaveis e constantes
 posPersonagem: var #1			; Contem a posicao atual da Nave
 posAntPersonagem: var #1		; Contem a posicao anterior da Nave
+
+;*** Inicializando globais da password e catalogando as palavras
+;***************************************************************************************************
+
 chaveRandom: var #2
 Palavra: var #20		
 TamanhoPalavra: var #1
@@ -17,25 +17,80 @@ posLetra: var #1
 PalavraDigitada: var #20
 posCursor: var #2
 
-msg_start: string "PRESS 'SPACE' TO START" ; mensagem de inicio.
-
+; --Catalogo com as palavras
 word0: string "abacate"
 word1: string "mensagem"
 word2: string "pizza"
 word3: string "dignidade"
+word4: string "inapto"
+word5: string "hortensia"
+word6: string "problema"
+word7: string "carro"
+word8: string "maca"
+word9: string "parafuseta"
+;word10: string "casual"
+;word11: string "alegria"
+;word12: string "camiseta"
+;word13: string "vulnerabilidade"
+;word14: string "pressa"
+;word15: string "vazamento"
+;word16: string "perpendicular"
+;word17: string "improviso"
+;word18: string "empatia"
+;word19: string "cozinha"
 
+; --Catalogo de referencias para as palavras (numeros estaticos podem variar de acorodo com tamanhos)
 Catalogo : var #20
 static Catalogo + #0, #word0
 static Catalogo + #2, #word1
 static Catalogo + #4, #word2
 static Catalogo + #6, #word3
+static Catalogo + #8, #word4
+static Catalogo + #10, #word5
+static Catalogo + #12, #word6
+static Catalogo + #14, #word7
+static Catalogo + #16, #word8
+static Catalogo + #18, #word9
+;static Catalogo + #20, #word10
+;static Catalogo + #22, #word11
+;static Catalogo + #24, #word12
+;static Catalogo + #26, #word13
+;static Catalogo + #28, #word14
+;static Catalogo + #30, #word15
+;static Catalogo + #32, #word16
+;static Catalogo + #34, #word17
+;static Catalogo + #36, #word18
+;static Catalogo + #38, #word19
 
+; --Catalogo com o tamanho das respectivas palavras do catalogo
 catTamanhos: var #10 		; Tamanho do catalogo de tamanho = quantidade de palavras no catalogo original
 static catTamanhos + #0, #7
 static catTamanhos + #1, #8
 static catTamanhos + #2, #5
 static catTamanhos + #3, #9
-; main
+static catTamanhos + #4, #6
+static catTamanhos + #5, #9
+static catTamanhos + #6, #8
+static catTamanhos + #7, #5
+static catTamanhos + #8, #4
+static catTamanhos + #9, #10
+;static catTamanhos + #10, #6
+;static catTamanhos + #11, #7
+;static catTamanhos + #12, #8
+;static catTamanhos + #13, #15
+;static catTamanhos + #14, #6
+;static catTamanhos + #15, #9
+;static catTamanhos + #16, #13
+;static catTamanhos + #17, #9
+;static catTamanhos + #18, #7
+;static catTamanhos + #19, #7
+
+;****************************************************************************************
+
+;***************************************************** INICIO DO Blackout
+
+msg_start: string "PRESS 'SPACE' TO START" ; mensagem de inicio.
+
 main:
 	; Tela inicial
 	call ApagaTela
@@ -106,11 +161,15 @@ main:
 		mod R1, R0, R1  ; resto p compara
 		cmp R1, R2		; if (mod(c/5)==0
 		ceq MovePersonagem	; chama rotina de movimentacao do personagem
+
+	; **********************************************************************************
+	;		PISCAR TELA ----- COMENTADO
+	;***********************************************************************************
 		
-		; verifica se morreu 
+    ; verifica se morreu 
 		loadn r6, #2    ; r6=2  
 		cmp r6, r7      ; morreu?
-		jeq gameover    ; sim: pula para rotina de game over 
+		jeq ImprimeStr   ; sim: pula para rotina de password
 		
 		; verifica se ganhou 
 		loadn r6, #3    ; r6=3
@@ -146,6 +205,7 @@ main:
 		; delay do jogo
 		;;call Delay
 		;inc R0 	;c++
+	;************************************************************************************
 		jmp loop
 		
 	gameover:
@@ -164,13 +224,15 @@ main:
 	ganhou:
 		call Delay2
 		call ApagaTela
-		loadn r1, #tela2Linha0
-		call ImprimeTela
-		call SorteiaPalavra
-		call ImprimeTelaPass
+		
+		loadn r1, #tela2Linha0 ; tela2 == tela password
+		call ImprimeTela ;prepara tela para algo 
+		call SorteiaPalavra ;
+		call ImprimeTelaPass 
+
 		;loadn R1, #telaVenceuLinha0	; Endereco onde comeca a primeira linha do cenario!!
 		;loadn R2, #512  			; cor verde!
-		;;call ImprimeTela2    		;  Rotina de Impresao de Cenario na Tela Inteira
+		;;call ImprimeTela2    		;  Rotina de Impresao de Cenario na Tela Inteira password
 		
 		loadn R1, #telaRestartLinha0	; Endereco onde comeca a primeira linha do cenario!!
 		loadn R2, #0     			; cor branca!
@@ -211,7 +273,7 @@ main:
 
 
 ;************************************************************
-;                         FUNÇÕES
+;                         FUNÇÕES --- BLACKOUT
 ;************************************************************
 
 MovePersonagem:
@@ -420,8 +482,6 @@ MovePersonagem_ChecaPos:
 
 	rts
 	
-	
-	
 
 ;----------------------------------
 ;----------------------------------
@@ -477,7 +537,7 @@ MostraMapa:
 
 
 Delay:
-						;Utiliza Push e Pop para nao afetar os Ristradores do programa principal
+	; Utiliza Push e Pop para nao afetar os Ristradores do programa principal
 	Push R0
 	Push R1
 	
@@ -556,7 +616,7 @@ ImprimeTela2: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	rts		
 ; /IMPRIME TELA2_________________________________________		
 
-	
+
 ; IMPRIME STRING2________________________________________
 ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
@@ -597,7 +657,7 @@ ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o p
 	rts
 ; /IMPRIME STRING2__________________________________________		
 
-; APAGA TELA________________________________________________
+; APAGA TELA Blackout________________________________________________
 ApagaTela:
 	push r0
 	push r1
@@ -645,7 +705,7 @@ LimpaMemoriaTela0:
 	rts	
 ; /LIMPA TELA0________________________________________________
 
-; PRINTA TELA0________________________________________________
+; PRINTA TELA0 blackout________________________________________________
 PrintaTela0:
 	push r0
 	push r1
@@ -681,8 +741,9 @@ PrintaTela0:
 
 
 ;********************************************************
-;                       IMPRIME TELA
+;                       IMPRIME TELA PASSAWORD
 ;********************************************************	
+
 ImprimeTelaPass: 	;  Rotina de Impresao de Cenario na Tela Inteira
 		;  r1 = endereco onde comeca a primeira linha do Cenario
 		;  r2 = cor do Cenario para ser impresso
@@ -717,79 +778,14 @@ ImprimeTelaPass: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop fr
 	rts
 	
-ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
-		;  r1 = endereco onde comeca a primeira linha do Cenario
-		;  r2 = cor do Cenario para ser impresso
-
-	push r0	; protege o r3 na pilha para ser usado na subrotina
-	push r1	; protege o r1 na pilha para preservar seu valor
-	push r2	; protege o r1 na pilha para preservar seu valor
-	push r3	; protege o r3 na pilha para ser usado na subrotina
-	push r4	; protege o r4 na pilha para ser usado na subrotina
-	push r5	; protege o r4 na pilha para ser usado na subrotina
-
-	loadn R0, #0  	; posicao inicial tem que ser o comeco da tela!
-	loadn R3, #40  	; Incremento da posicao da tela!
-	loadn R4, #41  	; incremento do ponteiro das linhas da tela
-	loadn R5, #1200 ; Limite da tela!
-	
-   ImprimeTela_Loop:
-		call ImprimeStr
-		add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
-		add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
-		cmp r0, r5			; Compara r0 com 1200
-		jne ImprimeTela_Loop	; Enquanto r0 < 1200
-
-	pop r5	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-				
-;---------------------
-
-;---------------------------	
-;********************************************************
-;                   IMPRIME STRING
-;********************************************************
-	
-ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
-	push r0	; protege o r0 na pilha para preservar seu valor
-	push r1	; protege o r1 na pilha para preservar seu valor
-	push r2	; protege o r1 na pilha para preservar seu valor
-	push r3	; protege o r3 na pilha para ser usado na subrotina
-	push r4	; protege o r4 na pilha para ser usado na subrotina
-	
-	loadn r3, #'\0'	; Criterio de parada
-
-   ImprimeStr_Loop:	
-		loadi r4, r1
-		cmp r4, r3		; If (Char == \0)  vai Embora
-		jeq ImprimeStr_Sai
-		add r4, r2, r4	; Soma a Cor
-		outchar r4, r0	; Imprime o caractere na tela
-		inc r0			; Incrementa a posicao na tela
-		inc r1			; Incrementa o ponteiro da String
-		jmp ImprimeStr_Loop
-	
-   ImprimeStr_Sai:	
-	pop r4	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-	
-;---------------------
 
 
-;********************************************************
-;                       IMPRIME TELA
-;********************************************************	
 
-ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
+
+
+;******************* PARTE DO BLACKOUT *****************************
+
+ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira 
 
 	push r0	; protege o r3 na pilha para ser usado na subrotina
 	push r1	; protege o r1 na pilha para preservar seu valor
@@ -816,45 +812,48 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop r1
 	pop r0
 	rts
-				
-SorteiaPalavra:
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
 
-	; Seleciona um numero entre 0 e o tamanho do catalogo
-	load r1, chaveRandom
-	rotl r1, #4		 	; Faz um rotate so pra tentar adicionar um pouco de "caos"
-	loadn r2, #10 			; Numero de palavras no catalogo (ATUALIZAR CASO ADICIONE MAIS)
-	mod r2, r1, r2 			; r2 = chaveRandom % numCatalogo (um numero pseudo randomico)
 
-	; Salva a palavra selecionada
-	loadn r3, #2 			; Tamanho de um endereco de memoria
-	loadn r4, #Catalogo		; Endereco do inicio do catalogo de palavras
-	mul r3, r3, r2
-	add r4, r4, r3			; Pula o tanto de palavras necessarias
-	loadi r4, r4
+;********************************************************
+;                   INICIO DO PASSWORD
+;********************************************************
 
-	store Palavra, r4	; Guarda palavra a ser usada
+	; --Prepara a tela para iniciar de fato o loop do jogo
+	call ApagaTela
+	loadn r1, #tela2Linha0
+	call ImprimeTela
+	call SorteiaPalavra
 
-	; Salva o tamanho da palavra
-	loadn r4, #catTamanhos
-	add r4, r4, r2
-	loadi r4, r4
 
-	store TamanhoPalavra, r4
-	
+	; --Calcula a posicao e numero de tentativas ideais com base na palavra sorteada
+	load r0, TamanhoPalavra
+	loadn r3, #3
+	div r3, r0, r3
+	add r4, r4, r3 		; Adiciona algumas tentativas se a palavra for grande
+	loadn r1, #2
+	loadn r2, #419			; Ponto central da tela	
+	div r0, r0, r1
+	sub r2, r2, r0			; Deslocando a palavra pra esquerda de acordo com o tamanho
+	store posCursor, r2
 
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
+	loadn r1, #0 		; Guarda o numero da tentativa
+	loadn r3, #40 		; Tamanho da linha da tela
 
-;---------------------
+	loop_principal:
+		call ImprimeEspacos
+		call InputPalavra
+		call ChecaPalavra
+
+		inc r1
+		add r2, r2, r3		; Passa pra proxima linha
+		store posCursor, r2
+
+		cmp r1, r4 			; Caso nao tenha excedido o numero de tentativas, continua
+		jne loop_principal
+
+
+
+
 
 ;************************************************************
 ;                          TELAS
@@ -1306,7 +1305,9 @@ tela1Linha27 : string "                                        "
 tela1Linha28 : string "                                        "
 tela1Linha29 : string "                                        "
 
-; PARTE DO JOGO PASSWORD
+
+; ***************PARTE DO JOGO PASSWORD
+;***********************************************************************
 
 tela2Linha0  : string "o======================================o"
 tela2Linha1  : string "|             Passos Word              |"
@@ -1338,3 +1339,111 @@ tela2Linha26 : string "|                                      |"
 tela2Linha27 : string "|                                      |"
 tela2Linha28 : string "|                                      |"
 tela2Linha29 : string "o======================================o"
+
+
+; **********FUNÇÕES DO PASSWORD
+; *****************************************************
+
+ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
+		;  r1 = endereco onde comeca a primeira linha do Cenario
+		;  r2 = cor do Cenario para ser impresso
+
+	push r0	; protege o r3 na pilha para ser usado na subrotina
+	push r1	; protege o r1 na pilha para preservar seu valor
+	push r2	; protege o r1 na pilha para preservar seu valor
+	push r3	; protege o r3 na pilha para ser usado na subrotina
+	push r4	; protege o r4 na pilha para ser usado na subrotina
+	push r5	; protege o r4 na pilha para ser usado na subrotina
+
+	loadn R0, #0  	; posicao inicial tem que ser o comeco da tela!
+	loadn R3, #40  	; Incremento da posicao da tela!
+	loadn R4, #41  	; incremento do ponteiro das linhas da tela
+	loadn R5, #1200 ; Limite da tela!
+	
+   ImprimeTela_Loop:
+		call ImprimeStr
+		add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
+		add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
+		cmp r0, r5			; Compara r0 com 1200
+		jne ImprimeTela_Loop	; Enquanto r0 < 1200
+
+	pop r5	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+;---------------------
+
+
+;---------------------------	
+;********************************************************
+;                   IMPRIME STRING PASSWORD
+;********************************************************
+	
+ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
+	push r0	; protege o r0 na pilha para preservar seu valor
+	push r1	; protege o r1 na pilha para preservar seu valor
+	push r2	; protege o r1 na pilha para preservar seu valor
+	push r3	; protege o r3 na pilha para ser usado na subrotina
+	push r4	; protege o r4 na pilha para ser usado na subrotina
+	
+	loadn r3, #'\0'	; Criterio de parada
+
+   ImprimeStr_Loop:	
+		loadi r4, r1
+		cmp r4, r3		; If (Char == \0)  vai Embora
+		jeq ImprimeStr_Sai
+		add r4, r2, r4	; Soma a Cor
+		outchar r4, r0	; Imprime o caractere na tela
+		inc r0			; Incrementa a posicao na tela
+		inc r1			; Incrementa o ponteiro da String
+		jmp ImprimeStr_Loop
+	
+   ImprimeStr_Sai:	
+	pop r4	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+;---------------------
+
+SorteiaPalavra:
+	push r0
+	push r1
+	push r2
+	push r3
+	push r4
+
+	; Seleciona um numero entre 0 e o tamanho do catalogo
+	load r1, chaveRandom
+	rotl r1, #4		 	; Faz um rotate so pra tentar adicionar um pouco de "caos"
+	loadn r2, #10 			; Numero de palavras no catalogo (ATUALIZAR CASO ADICIONE MAIS)
+	mod r2, r1, r2 			; r2 = chaveRandom % numCatalogo (um numero pseudo randomico)
+
+	; Salva a palavra selecionada
+	loadn r3, #2 			; Tamanho de um endereco de memoria
+	loadn r4, #Catalogo		; Endereco do inicio do catalogo de palavras
+	mul r3, r3, r2
+	add r4, r4, r3			; Pula o tanto de palavras necessarias
+	loadi r4, r4
+
+	store Palavra, r4	; Guarda palavra a ser usada
+
+	; Salva o tamanho da palavra
+	loadn r4, #catTamanhos
+	add r4, r4, r2
+	loadi r4, r4
+
+	store TamanhoPalavra, r4
+	
+
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
