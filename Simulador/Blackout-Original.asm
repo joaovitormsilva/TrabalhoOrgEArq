@@ -1,96 +1,19 @@
 ; Blackout
 
+; Jansen Caik Ferreira Freitas
+; Leonardo Minoru Iwashima
+; Paulo Marcos Ordonha
+
 jmp main
 
 ; Variaveis e constantes
 posPersonagem: var #1			; Contem a posicao atual da Nave
 posAntPersonagem: var #1		; Contem a posicao anterior da Nave
 
-;*** Inicializando globais da password e catalogando as palavras
-;***************************************************************************************************
-
-chaveRandom: var #2
-Palavra: var #20		
-TamanhoPalavra: var #1
-Letra: var #1
-posLetra: var #1
-PalavraDigitada: var #20
-posCursor: var #2
-
-; --Catalogo com as palavras
-word0: string "abacate"
-word1: string "mensagem"
-word2: string "pizza"
-word3: string "dignidade"
-word4: string "inapto"
-word5: string "hortensia"
-word6: string "problema"
-word7: string "carro"
-word8: string "maca"
-word9: string "parafuseta"
-;word10: string "casual"
-;word11: string "alegria"
-;word12: string "camiseta"
-;word13: string "vulnerabilidade"
-;word14: string "pressa"
-;word15: string "vazamento"
-;word16: string "perpendicular"
-;word17: string "improviso"
-;word18: string "empatia"
-;word19: string "cozinha"
-
-; --Catalogo de referencias para as palavras (numeros estaticos podem variar de acorodo com tamanhos)
-Catalogo : var #20
-static Catalogo + #0, #word0
-static Catalogo + #2, #word1
-static Catalogo + #4, #word2
-static Catalogo + #6, #word3
-static Catalogo + #8, #word4
-static Catalogo + #10, #word5
-static Catalogo + #12, #word6
-static Catalogo + #14, #word7
-static Catalogo + #16, #word8
-static Catalogo + #18, #word9
-;static Catalogo + #20, #word10
-;static Catalogo + #22, #word11
-;static Catalogo + #24, #word12
-;static Catalogo + #26, #word13
-;static Catalogo + #28, #word14
-;static Catalogo + #30, #word15
-;static Catalogo + #32, #word16
-;static Catalogo + #34, #word17
-;static Catalogo + #36, #word18
-;static Catalogo + #38, #word19
-
-; --Catalogo com o tamanho das respectivas palavras do catalogo
-catTamanhos: var #10 		; Tamanho do catalogo de tamanho = quantidade de palavras no catalogo original
-static catTamanhos + #0, #7
-static catTamanhos + #1, #8
-static catTamanhos + #2, #5
-static catTamanhos + #3, #9
-static catTamanhos + #4, #6
-static catTamanhos + #5, #9
-static catTamanhos + #6, #8
-static catTamanhos + #7, #5
-static catTamanhos + #8, #4
-static catTamanhos + #9, #10
-;static catTamanhos + #10, #6
-;static catTamanhos + #11, #7
-;static catTamanhos + #12, #8
-;static catTamanhos + #13, #15
-;static catTamanhos + #14, #6
-;static catTamanhos + #15, #9
-;static catTamanhos + #16, #13
-;static catTamanhos + #17, #9
-;static catTamanhos + #18, #7
-;static catTamanhos + #19, #7
-
-;****************************************************************************************
-
-;***************************************************** INICIO DO Blackout
-
 msg_start: string "PRESS 'SPACE' TO START" ; mensagem de inicio.
 
+
+; main
 main:
 	; Tela inicial
 	call ApagaTela
@@ -122,7 +45,7 @@ main:
 	; mapa 1	
 	call ApagaTela
 	loadn R1, #telaMp3Linha0	; Endereco onde comeca a primeira linha do cenario!!
-	loadn R2, #2304  			; cor teal!
+	loadn R2, #1536  			; cor teal!
 	call ImprimeTela2   		;  Rotina de Impresao de Cenario na Tela Inteira
 	
 	; icmc	
@@ -161,45 +84,42 @@ main:
 		mod R1, R0, R1  ; resto p compara
 		cmp R1, R2		; if (mod(c/5)==0
 		ceq MovePersonagem	; chama rotina de movimentacao do personagem
-
-    ; verifica se morreu 
+		
+		; verifica se morreu 
 		loadn r6, #2    ; r6=2  
 		cmp r6, r7      ; morreu?
-		jeq ImprimeStr   ; sim: pula para rotina de password
+		jeq gameover    ; sim: pula para rotina de game over 
 		
 		; verifica se ganhou 
 		loadn r6, #3    ; r6=3
 		cmp r6, r7      ; ganhou?
 		jeq ganhou    ; sim: pula para rotina de ganhou
-	; **********************************************************************************
-	;		PISCAR TELA ----- COMENTADO
-	;***********************************************************************************
-			
+		
 		; piscar tela
-		;loadn R1, #500    ; a cada 500 ciclos, entra (500 =~ 1s)
-		;mod R1, R0, R1    ; resto p compara
-		;cmp R1, R2		  ; if (mod(c/500)==0
-		;jeq conta_pisca_tela  
-		;jmp pula_pisca_tela
-	;	conta_pisca_tela:
-		;	inc r3           ; entra aqui a cada 1s aproximadamente
+		loadn R1, #500    ; a cada 500 ciclos, entra (500 =~ 1s)
+		mod R1, R0, R1    ; resto p compara
+		cmp R1, R2		  ; if (mod(c/500)==0
+		jeq conta_pisca_tela  
+		jmp pula_pisca_tela
+		conta_pisca_tela:
+			inc r3           ; entra aqui a cada 1s aproximadamente
 			
-			;loadn r1, #3     ; apaga o mapa dps de 5s
-			;cmp r1, r3       ; 
-			;ceq ApagaMapaIni ; 
+			loadn r1, #3     ; apaga o mapa dps de 5s
+			cmp r1, r3       ; 
+			ceq ApagaMapaIni ; 
 			
-			;loadn r1, #1
-			;cmp r1, r5       ; r5 = 1 ou 0 (map apagado?)
-			;ceq ApagaMapa    ; subrotina a ser chamada a cada x segundos
+			loadn r1, #1
+			cmp r1, r5       ; r5 = 1 ou 0 (map apagado?)
+			ceq ApagaMapa    ; subrotina a ser chamada a cada x segundos
 			
-			;loadn r1, #4	 ; tempo x em segundos aprox	
-			;;mod r1, r3, r1  
-			;cmp r1, r2
-			;;ceq MostraMapa    ; subrotina a ser chamada a cada x segundos
+			loadn r1, #4	 ; tempo x em segundos aprox	
+			mod r1, r3, r1  
+			cmp r1, r2
+			ceq MostraMapa    ; subrotina a ser chamada a cada x segundos
 			
 			
-		;;pula_pisca_tela:	
-;************************************************************************************	
+		pula_pisca_tela:	
+			
 			
 		; delay do jogo
 		call Delay
@@ -222,16 +142,9 @@ main:
 	ganhou:
 		call Delay2
 		call ApagaTela
-		
-		;PASSWORD
-		loadn r1, #tela2Linha0 ; tela2 == tela password
-		call ImprimeTela ;prepara tela para algo 
-		call SorteiaPalavra ;
-		call ImprimeTelaPass 
-		;////////////////
-		;loadn R1, #telaVenceuLinha0	; Endereco onde comeca a primeira linha do cenario!!
-		;loadn R2, #512  			; cor verde!
-		;;call ImprimeTela2    		;  Rotina de Impresao de Cenario na Tela Inteira
+		loadn R1, #telaVenceuLinha0	; Endereco onde comeca a primeira linha do cenario!!
+		loadn R2, #512  			; cor verde!
+		call ImprimeTela2    		;  Rotina de Impresao de Cenario na Tela Inteira
 		
 		loadn R1, #telaRestartLinha0	; Endereco onde comeca a primeira linha do cenario!!
 		loadn R2, #0     			; cor branca!
@@ -239,14 +152,14 @@ main:
 		
 	restart_loop: ; espera o jogador iniciar.
 
-		loadn r0, #0 ; limpa o registrador que recebera input.
-		inchar r0 ; tenta receber input.
-		
-		loadn r1, #' ' ; verifica se o input ocorreu.
-		cmp r0, r1
-		jeq restart_game ; pula para reiniciar o jogo.
+			loadn r0, #0 ; limpa o registrador que recebera input.
+			inchar r0 ; tenta receber input.
+			
+			loadn r1, #' ' ; verifica se o input ocorreu.
+			cmp r0, r1
+			jeq restart_game ; pula para reiniciar o jogo.
 
-		jmp restart_loop ; continua o loop.
+			jmp restart_loop ; continua o loop.
 			
 	restart_game:
 	
@@ -272,7 +185,7 @@ main:
 
 
 ;************************************************************
-;                         FUNÇÕES --- BLACKOUT
+;                         FUNÇÕES
 ;************************************************************
 
 MovePersonagem:
@@ -481,6 +394,8 @@ MovePersonagem_ChecaPos:
 
 	rts
 	
+	
+	
 
 ;----------------------------------
 ;----------------------------------
@@ -531,12 +446,12 @@ MostraMapa:
 	rts
 	
 ;********************************************************
-;                       DELAY - BLACKOUT
+;                       DELAY
 ;********************************************************		
 
 
 Delay:
-	; Utiliza Push e Pop para nao afetar os Ristradores do programa principal
+						;Utiliza Push e Pop para nao afetar os Ristradores do programa principal
 	Push R0
 	Push R1
 	
@@ -578,7 +493,7 @@ Delay2:
 
 
 	
-; IMPRIME TELA2 BLACKOUT_______________________________________
+; IMPRIME TELA2_______________________________________
 ImprimeTela2: 	;  Rotina de Impresao de Cenario na Tela Inteira
 		;  r1 = endereco onde comeca a primeira linha do Cenario
 		;  r2 = cor do Cenario para ser impresso
@@ -615,7 +530,7 @@ ImprimeTela2: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	rts		
 ; /IMPRIME TELA2_________________________________________		
 
-
+	
 ; IMPRIME STRING2________________________________________
 ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
@@ -656,7 +571,7 @@ ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o p
 	rts
 ; /IMPRIME STRING2__________________________________________		
 
-; APAGA TELA BLACKOUT________________________________________________
+; APAGA TELA________________________________________________
 ApagaTela:
 	push r0
 	push r1
@@ -674,7 +589,7 @@ ApagaTela:
 	rts	
 ; /APAGA TELA________________________________________________
 
-; LIMPA TELA0 BLACKOUT________________________________________________
+; LIMPA TELA0________________________________________________
 LimpaMemoriaTela0:
 	push r0
 	push r1
@@ -704,7 +619,7 @@ LimpaMemoriaTela0:
 	rts	
 ; /LIMPA TELA0________________________________________________
 
-; PRINTA TELA0 BLACKOUT________________________________________________
+; PRINTA TELA0________________________________________________
 PrintaTela0:
 	push r0
 	push r1
@@ -732,6 +647,16 @@ PrintaTela0:
 	pop r0
 	rts	
 ; /PRINTA TELA0________________________________________________
+
+;************************************************************
+
+
+
+
+
+;********************************************************
+;                       IMPRIME TELA
+;********************************************************	
 
 ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
 		;  r1 = endereco onde comeca a primeira linha do Cenario
@@ -763,9 +688,14 @@ ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop r1
 	pop r0
 	rts
-;--------------------------------------
+				
+;---------------------
+
+;---------------------------	
+;********************************************************
 ;                   IMPRIME STRING
-;---------------------------------------
+;********************************************************
+	
 ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
 	push r1	; protege o r1 na pilha para preservar seu valor
@@ -793,10 +723,14 @@ ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o pr
 	pop r0
 	rts
 	
-;------------------------------------------
-;                       IMPRIME TELA0
-;---------------------------------------------------
-ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira 
+;---------------------
+
+
+;********************************************************
+;                       IMPRIME TELA
+;********************************************************	
+
+ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 
 	push r0	; protege o r3 na pilha para ser usado na subrotina
 	push r1	; protege o r1 na pilha para preservar seu valor
@@ -823,322 +757,8 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop r1
 	pop r0
 	rts
-
-
-
-;************************************************************
-
-
-
-;********************************************************
-;                       PASSAWORD
-;********************************************************	
-
-	; --Prepara a tela para iniciar de fato o loop do jogo
-	call ApagaTelaPASS
-	loadn r1, #tela2Linha0
-	call ImprimeTelaPass
-	call SorteiaPalavra
-
-
-	; --Calcula a posicao e numero de tentativas ideais com base na palavra sorteada
-	load r0, TamanhoPalavra
-	loadn r3, #3
-	div r3, r0, r3
-	add r4, r4, r3 		; Adiciona algumas tentativas se a palavra for grande
-	loadn r1, #2
-	loadn r2, #419			; Ponto central da tela	
-	div r0, r0, r1
-	sub r2, r2, r0			; Deslocando a palavra pra esquerda de acordo com o tamanho
-	store posCursor, r2
-
-	loadn r1, #0 		; Guarda o numero da tentativa
-	loadn r3, #40 		; Tamanho da linha da tela
-
-	loop_principal:
-		call ImprimeEspacos
-		call InputPalavra
-		call ChecaPalavra
-
-		inc r1
-		add r2, r2, r3		; Passa pra proxima linha
-		store posCursor, r2
-
-		cmp r1, r4 			; Caso nao tenha excedido o numero de tentativas, continua
-		jne loop_principal
-
-;********************************************************
-;                  FUNÇÕES PASSWORD
-;********************************************************
-ImprimeTelaPass: 	;  Rotina de Impresao de Cenario na Tela Inteira
-		;  r1 = endereco onde comeca a primeira linha do Cenario
-		;  r2 = cor do Cenario para ser impresso
-
-	push fr		; Protege o registrador de flags
-	push r0	; protege o r3 na pilha para ser usado na subrotina
-	push r1	; protege o r1 na pilha para preservar seu valor
-	push r2	; protege o r1 na pilha para preservar seu valor
-	push r3	; protege o r3 na pilha para ser usado na subrotina
-	push r4	; protege o r4 na pilha para ser usado na subrotina
-	push r5	; protege o r4 na pilha para ser usado na subrotina
-
-	loadn R0, #0  	; posicao inicial tem que ser o comeco da tela!
-	loadn R3, #40  	; Incremento da posicao da tela!
-	loadn R4, #41  	; incremento do ponteiro das linhas da tela
-	loadn R5, #1200 ; Limite da tela!
-	loadn r6, #0
-	
-   	ImprimeTelaPass_Loop:
-		call ImprimeStr
-		add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
-		add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
-		cmp r0, r5		; Compara r0 com 1200
-		jne ImprimeTelaPass_Loop	; Enquanto r0 < 1200
-
-	pop r5	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	pop fr
-	rts
-
-SorteiaPalavra:
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-
-	; Seleciona um numero entre 0 e o tamanho do catalogo
-	load r1, chaveRandom
-	rotl r1, #4		 	; Faz um rotate so pra tentar adicionar um pouco de "caos"
-	loadn r2, #10 			; Numero de palavras no catalogo (ATUALIZAR CASO ADICIONE MAIS)
-	mod r2, r1, r2 			; r2 = chaveRandom % numCatalogo (um numero pseudo randomico)
-
-	; Salva a palavra selecionada
-	loadn r3, #2 			; Tamanho de um endereco de memoria
-	loadn r4, #Catalogo		; Endereco do inicio do catalogo de palavras
-	mul r3, r3, r2
-	add r4, r4, r3			; Pula o tanto de palavras necessarias
-	loadi r4, r4
-
-	store Palavra, r4	; Guarda palavra a ser usada
-
-	; Salva o tamanho da palavra
-	loadn r4, #catTamanhos
-	add r4, r4, r2
-	loadi r4, r4
-
-	store TamanhoPalavra, r4
-	
-
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-ApagaTelaPASS:
-	push fr		; Protege o registrador de flags
-	push r0
-	push r1
-	
-	loadn r0, #1200		; apaga as 1200 posicoes da Tela
-	loadn r1, #' '		; com "espaco"
-	
-	   ApagaTela_Loop:
-		dec r0
-		outchar r1, r0
-		jnz ApagaTela_Loop
- 
-	pop r1
-	pop r0
-	pop fr
-	rts
-
-ImprimeEspacos:	; r0 = Numero da linha que vai iniciar
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-
-	load r1, TamanhoPalavra
-	loadn r4, #0 			; Contador de Letras
-	load r2, posCursor
-
-	espacos_Loop:
-		loadn r3, #'_'		; Salva o Espaco em branco (Underline)
-		outchar r3, r2
-		inc r2
-		inc r4
-		cmp r1, r4
-		jne espacos_Loop		; Se o contador for igual ao tamanho, sai do loop
-
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-InputPalavra:
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-	push r5
-	push r6
-
-	
-	loadn r1, #PalavraDigitada 	; Endereco reservado pra palavra a ser digitada
-	load r2, TamanhoPalavra
-	load r3, posCursor			; Aponta o inicio da linha para escrever
-	loadn r4, #0 				; Contador de letras
-
-	inputPalavra_Loop:
-		call InputLetra
-
-		load r0, Letra
-		loadn r6, #13
-		cmp r0, r6
-		jeq main
-		add r5, r1, r4 			; r5 = posicao da letra a ser inserida na memoria
-		storei r5, r0 			; Mem[r5] = r0
-
-		outchar r0, r3
-		inc r3
-
-		inc r4
-		cmp r4, r2
-		jne inputPalavra_Loop
-
-	loadn r0, #0
-	add r4, r4, r3
-	storei r4, r0
-
-
-	pop r6
-	pop r5
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-InputLetra:
-	push r0
-	push r1
-
-	loadn r1, #255
-
-	inputLetra_Loop:
-		inchar r0
-		cmp r0, r1
-		jeq inputLetra_Loop
-
-	store Letra, r0
-	
-	pop r1
-	pop r0
-	rts
-
-
-; --Compara a palavra digitada pelo jogador com a correta letra por letra
-ChecaPalavra:
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-
-	loadn r1, #PalavraDigitada 		; Endereco de inicio da palavra
-	load r2, TamanhoPalavra
-	loadn r3, #0 			; Contador de letras
-
-	
-	checaPalavra_Loop:
-		store posLetra, r3
-		add r4, r1, r3		; Pega endereco exato da letra a ser lida
-		loadi r0, r4		; r0 = Mem[r4]
-		store Letra, r0
-
-		call ChecaLetra
-
-		inc r3
-		cmp r3, r2 			; Se tiver acabado a palavra, sai
-		jne checaPalavra_Loop
-
-
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
-
-
-; --Checa uma letra com toda a palavra certa e pinta ela com a cor de acordo com sua aparicao e posicao
-ChecaLetra: ; r0 = Letra a ser checada com todas as outras
-	push r0
-	push r1
-	push r2
-	push r3
-	push r4
-	push r5
-	push r6
-
-	load r1, Palavra 	; Endereco da palavra
-	load r2, TamanhoPalavra	
-	loadn r3, #0 		; Contador
-	loadn r5, #0 		; Por padrao, a letra sera branca
-
-	checaLetra_Loop:
-		add r4, r1, r3 		
-		loadi r4, r4		; r4 = Mem[r4] (Letra da palavra certa a ser checada)
-		cmp r0, r4
-		jeq letraPresente
-
-	  checaLetra_Continue:
-		inc r3
-		cmp r2, r3
-		jeq checaLetra_Sai	; Caso ja tenha acabado a palavra, sai do loop
-		jmp checaLetra_Loop
-
-
-	letraPresente:
-		load r6, posLetra
-		cmp r6, r3 			; Caso a letra esteja no lugar certo
-		jne letraAmarela
-		loadn r5, #512 		; Cor verde
-		jmp checaLetra_Sai
-
-		letraAmarela:
-			loadn r5, #2816
-			jmp checaLetra_Continue
-
-
-   checaLetra_Sai:
-   	load r3, posLetra
-	load r4, posCursor
-	add r4, r4, r3		; Pega endereco da posicao certa
-	add r0, r0, r5 		; Colore a letra
-
-	outchar r0, r4
-
-  	pop r6
-	pop r5
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	pop r0
-	rts
+				
+;---------------------
 
 ;************************************************************
 ;                          TELAS
@@ -1191,16 +811,16 @@ tela6Linha7  : string "         ** ***   *** *** ***           "
 tela6Linha8  : string "         ** ***   ** * ** ***           "
 tela6Linha9  : string "         **  **** **   **  ****         "
 tela6Linha10 : string "                                        "
-tela6Linha11 : string " *   * **** *   *       ** ** *** ***   "
-tela6Linha12 : string " **  * *    *   *       ** ** *   *     "
-tela6Linha13 : string " * * * **** *   *       * * * *** *     "
-tela6Linha14 : string " *  ** *    * * *       *   *   * ***   "
-tela6Linha15 : string " *   * *    ** **       *   *   * * *   "
-tela6Linha16 : string " *   * **** *   *       *   * *** ***   "
+tela6Linha11 : string " ***** *    ***** *** *  * **** * * *** "
+tela6Linha12 : string " *   * *    *   * *   * *  *  * * *  *  "
+tela6Linha13 : string " *  *  *    *   * *   **   *  * * *  *  "
+tela6Linha14 : string " *  *  *    * * * *   **   *  * * *  *  "
+tela6Linha15 : string " *   * *    *   * *   * *  *  * * *  *  "
+tela6Linha16 : string " ***** **** *   * *** *  * **** ***  *  "
 tela6Linha17 : string "                                        "
 tela6Linha18 : string " ______________________________________ "
 tela6Linha19 : string "                                        "
-tela6Linha20 : string "                       by Nome grupo    "
+tela6Linha20 : string "                       by JLP Studios   "
 tela6Linha21 : string "                                        "
 tela6Linha22 : string "                                        "
 tela6Linha23 : string "                                        "
@@ -1558,69 +1178,3 @@ telaRestartLinha27 : string "                                        "
 telaRestartLinha28 : string "                                        "
 telaRestartLinha29 : string "                                        "	
 ;Telas_fim
-
-tela1Linha0  : string "                                        "
-tela1Linha1  : string "                                        "
-tela1Linha2  : string "                                        "
-tela1Linha3  : string " ####                                   "
-tela1Linha4  : string " #   #   ##    ###   ###   ####   ###   "
-tela1Linha5  : string " #   #  #  #  #     #     #    # #      "
-tela1Linha6  : string " ####  #    #  ###   ###  #    #  ###   "
-tela1Linha7  : string " #     ######     #     # #    #     #  "
-tela1Linha8  : string " #     #    # #   # #   # #    # #   #  "
-tela1Linha9  : string " #     #    #  ###   ###   ####   ###   "
-tela1Linha10 : string "                                        "
-tela1Linha11 : string "      #     #                           "
-tela1Linha12 : string "      #  #  #  ####  #####  #####       "
-tela1Linha13 : string "      #  #  # #    # #    # #    #      "
-tela1Linha14 : string "      #  #  # #    # #    # #    #      "
-tela1Linha15 : string "      #  #  # #    # #####  #    #      "
-tela1Linha16 : string "      #  #  # #    # #   #  #    #      "
-tela1Linha17 : string "       ## ##   ####  #    # #####       "
-tela1Linha18 : string "                                        "
-tela1Linha19 : string "                                        "
-tela1Linha20 : string "                                        "
-tela1Linha21 : string "                                        "
-tela1Linha22 : string "                                        "
-tela1Linha23 : string "                                        "
-tela1Linha24 : string "        Aperte ENTER para jogar         "
-tela1Linha25 : string "                                        "
-tela1Linha26 : string "                                        "
-tela1Linha27 : string "                                        "
-tela1Linha28 : string "                                        "
-tela1Linha29 : string "                                        "
-
-
-; ***************PARTE DO JOGO PASSWORD
-;***********************************************************************
-
-tela2Linha0  : string "o======================================o"
-tela2Linha1  : string "|             Passos Word              |"
-tela2Linha2  : string "| Como Jogar:                          |"
-tela2Linha3  : string "|  Descubra a senha!                   |"
-tela2Linha4  : string "|  Teste diferentes letras e palavras  |"
-tela2Linha5  : string "|   Amarelo = letra na posicao errada  |"
-tela2Linha6  : string "|   Verde = letra e posicao certas     |"
-tela2Linha7  : string "|                                      |"
-tela2Linha8  : string "|                                      |"
-tela2Linha9  : string "|                                      |"
-tela2Linha10 : string "|                                      |"
-tela2Linha11 : string "|                                      |"
-tela2Linha12 : string "|                                      |"
-tela2Linha13 : string "|                                      |"
-tela2Linha14 : string "|                                      |"
-tela2Linha15 : string "|                                      |"
-tela2Linha16 : string "|                                      |"
-tela2Linha17 : string "|                                      |"
-tela2Linha18 : string "|                                      |"
-tela2Linha19 : string "|                                      |"
-tela2Linha20 : string "|                                      |"
-tela2Linha21 : string "|                                      |"
-tela2Linha22 : string "|                                      |"
-tela2Linha23 : string "|                                      |"
-tela2Linha24 : string "|                                      |"
-tela2Linha25 : string "|                                      |"
-tela2Linha26 : string "|                                      |"
-tela2Linha27 : string "|                                      |"
-tela2Linha28 : string "|                                      |"
-tela2Linha29 : string "o======================================o"
