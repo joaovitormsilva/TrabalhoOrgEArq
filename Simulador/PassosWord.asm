@@ -135,6 +135,9 @@ main:
 		store posCursor, r2
 
 		cmp r1, r4 			; Caso nao tenha excedido o numero de tentativas, continua
+		
+		; VERIFICAR SE CASO ACERTOU A PALAVRA
+		; VERIFICAR 
 		jne loop_principal
 
    main_Fim:
@@ -323,7 +326,7 @@ ChecaPalavra:
 		cmp r3, r2 			; Se tiver acabado a palavra, sai
 		jne checaPalavra_Loop
 
-
+		
 	pop r4
 	pop r3
 	pop r2
