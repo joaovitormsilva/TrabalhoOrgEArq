@@ -220,14 +220,10 @@ main:
 		jmp restart_loop
 	
 	ganhou:
-		call Delay2
+		;call Delay2
 		call ApagaTela
 		
-		;PASSWORD
-		loadn r1, #tela2Linha0 ; tela2 == tela password
-		call ImprimeTela ;prepara tela para algo 
-		call SorteiaPalavra ;
-		call ImprimeTelaPass 
+		jmp MainPass 
 		;////////////////
 		;loadn R1, #telaVenceuLinha0	; Endereco onde comeca a primeira linha do cenario!!
 		;loadn R2, #512  			; cor verde!
@@ -617,7 +613,9 @@ ImprimeTela2: 	;  Rotina de Impresao de Cenario na Tela Inteira
 
 
 ; IMPRIME STRING2________________________________________
-ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
+ImprimeStr
+
+2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
 	push r1	; protege o r1 na pilha para preservar seu valor
 	push r2	; protege o r1 na pilha para preservar seu valor
@@ -630,22 +628,34 @@ ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o p
 	loadn r3, #'\0'	; Criterio de parada
 	loadn r5, #' '	; Espaco em Branco
 
-   ImprimeStr2_Loop:	
+   ImprimeStr
+   
+   2_Loop:	
 		loadi r4, r1
 		cmp r4, r3		; If (Char == \0)  vai Embora
-		jeq ImprimeStr2_Sai
+		jeq ImprimeStr
+		
+		2_Sai
 		cmp r4, r5		; If (Char == ' ')  vai Pula outchar do espaco para na apagar outros caracteres
-		jeq ImprimeStr2_Skip
+		jeq ImprimeStr
+		
+		2_Skip
 		add r4, r2, r4	; Soma a Cor
 		outchar r4, r0	; Imprime o caractere na tela
    		storei r6, r4
-   ImprimeStr2_Skip:
+   ImprimeStr
+   
+   2_Skip:
 		inc r0			; Incrementa a posicao na tela
 		inc r1			; Incrementa o ponteiro da String
 		inc r6
-		jmp ImprimeStr2_Loop
+		jmp ImprimeStr
+		
+		2_Loop
 	
-   ImprimeStr2_Sai:	
+   ImprimeStr
+   
+   2_Sai:	
 	pop r6	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
 	pop r5
 	pop r4
@@ -751,6 +761,8 @@ ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	
    ImprimeTela_Loop:
 		call ImprimeStr
+		
+		
 		add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
 		add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
 		cmp r0, r5			; Compara r0 com 1200
@@ -766,7 +778,9 @@ ImprimeTela: 	;  Rotina de Impresao de Cenario na Tela Inteira
 ;--------------------------------------
 ;                   IMPRIME STRING
 ;---------------------------------------
-ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
+ImprimeStr
+
+:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o primeiro caractere da mensagem sera' impresso;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
 	push r0	; protege o r0 na pilha para preservar seu valor
 	push r1	; protege o r1 na pilha para preservar seu valor
 	push r2	; protege o r1 na pilha para preservar seu valor
@@ -775,17 +789,25 @@ ImprimeStr:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o pr
 	
 	loadn r3, #'\0'	; Criterio de parada
 
-   ImprimeStr_Loop:	
+   ImprimeStr
+   
+   _Loop:	
 		loadi r4, r1
 		cmp r4, r3		; If (Char == \0)  vai Embora
-		jeq ImprimeStr_Sai
+		jeq ImprimeStr
+		
+		_Sai
 		add r4, r2, r4	; Soma a Cor
 		outchar r4, r0	; Imprime o caractere na tela
 		inc r0			; Incrementa a posicao na tela
 		inc r1			; Incrementa o ponteiro da String
-		jmp ImprimeStr_Loop
+		jmp ImprimeStr
+		
+		_Loop
 	
-   ImprimeStr_Sai:	
+   ImprimeStr
+   
+   _Sai:	
 	pop r4	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
 	pop r3
 	pop r2
@@ -811,6 +833,8 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	loadn R5, #1200 ; Limite da tela!
 	
 	call ImprimeStr
+	
+	
 	add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
 	add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
 	cmp r0, r5			; Compara r0 com 1200
@@ -833,7 +857,7 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 ;********************************************************
 ;                       PASSAWORD
 ;********************************************************	
-
+MainPass:
 	; --Prepara a tela para iniciar de fato o loop do jogo
 	call ApagaTelaPASS
 	loadn r1, #tela2Linha0
@@ -866,7 +890,10 @@ ImprimeTela0: 	;  Rotina de Impresao de Cenario na Tela Inteira
 
 		cmp r1, r4 			; Caso nao tenha excedido o numero de tentativas, continua
 		jne loop_principal
-
+	
+	main_Fim:
+		halt
+	 
 ;********************************************************
 ;                  FUNÇÕES PASSWORD
 ;********************************************************
@@ -889,7 +916,9 @@ ImprimeTelaPass: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	loadn r6, #0
 	
    	ImprimeTelaPass_Loop:
-		call ImprimeStr
+		call ImprimeStrPass
+		
+		
 		add r0, r0, r3  	; incrementaposicao para a segunda linha na tela -->  r0 = R0 + 40
 		add r1, r1, r4  	; incrementa o ponteiro para o comeco da proxima linha na memoria (40 + 1 porcausa do /0 !!) --> r1 = r1 + 41
 		cmp r0, r5		; Compara r0 com 1200
@@ -903,7 +932,7 @@ ImprimeTelaPass: 	;  Rotina de Impresao de Cenario na Tela Inteira
 	pop r0
 	pop fr
 	rts
-
+	
 SorteiaPalavra:
 	push r0
 	push r1
@@ -1138,6 +1167,56 @@ ChecaLetra: ; r0 = Letra a ser checada com todas as outras
 	pop r2
 	pop r1
 	pop r0
+	rts
+
+
+ImprimeLetra: 	; r0 = Letra a ser impressa, r5 = cor da letra, r3 = posicao na palavra
+	push r0
+	push r1
+	push r2
+	push r3
+
+	load r3, posCursor
+	add r3, r3, r2		; Pega endereco da posicao certa
+	add r0, r0, r1 		; Colore a letra
+
+	outchar r0, r3
+
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	rts
+	
+	ApagaTela
+	
+ImprimeStrPass:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela do primeiro caractere;  r1 = endereco onde comeca a mensagem; r2 = cor da mensagem.   Obs: a mensagem sera' impressa ate' encontrar "/0"
+	push fr		; Protege o registrador de flags
+	push r0	; protege o r0 na pilha para preservar seu valor
+	push r1	; protege o r1 na pilha para preservar seu valor
+	push r2	; protege o r1 na pilha para preservar seu valor
+	push r3	; protege o r3 na pilha para ser usado na subrotina
+	push r4	; protege o r4 na pilha para ser usado na subrotina
+	
+	loadn r3, #'\0'	; Criterio de parada
+
+   ImprimeStrPass_Loop:	
+		loadi r4, r1
+		cmp r4, r3
+		jeq ImprimeStrPass_Sai
+		add r4, r2, r4
+		outchar r4, r0
+		inc r0
+		inc r1
+		jmp ImprimeStrPass_Loop
+	
+   ImprimeStrPass_Sai:	
+	pop r4	; Resgata os valores dos registradores utilizados na Subrotina da Pilha
+	pop r3
+	pop r2
+	pop r1
+	pop r0
+	pop fr
 	rts
 
 ;************************************************************
