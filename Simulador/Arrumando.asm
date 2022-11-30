@@ -1,9 +1,3 @@
-; Blackout
-
-; Jansen Caik Ferreira Freitas
-; Leonardo Minoru Iwashima
-; Paulo Marcos Ordonha
-
 jmp main
 
 ;**************************************************************************
@@ -108,7 +102,9 @@ static catTamanhos + #9, #10
 ;*************************************************************************************
 
 
-
+;**************************************************************************
+;------------------------------BLACKOUT------------------------------------
+;**************************************************************************
 ; Variaveis e constantes
 posPersonagem: var #1			; Contem a posicao atual da Nave
 posAntPersonagem: var #1		; Contem a posicao anterior da Nave
@@ -224,7 +220,7 @@ main:
 		pula_pisca_tela:	
 			
 			
-		; delay do jogo
+		;delay do jogo
 		call Delay
 		inc R0 	;c++
 		jmp loop
@@ -233,6 +229,7 @@ main:
 		call Delay2
 		call ApagaTela
 		call mainPass
+		
 		loadn R1, #telaGameOverLinha0	; Endereco onde comeca a primeira linha do cenario!!
 		loadn R2, #2304  			; cor vermelha!
 		call ImprimeTela2    		;  Rotina de Impresao de Cenario na Tela Inteira
@@ -1298,7 +1295,7 @@ mainPass:
 	loadn r2, #0
 	loadn r3, #40		; Tamanho da Linha
 	loadn r4, #4 		; Maximo de tentativas por padrao
-
+	
 	call ImprimeTelaPass
 	call EsperaEnter
 
@@ -1328,6 +1325,9 @@ mainPass:
 		call InputPalavra
 		call ChecaPalavra
 
+		 ;verifica se ganhou 
+	
+
 		inc r1
 		add r2, r2, r3		; Passa pra proxima linha
 		store posCursor, r2
@@ -1335,6 +1335,12 @@ mainPass:
 		cmp r1, r4 			; Caso nao tenha excedido o numero de tentativas, continua
 		jne loop_principal
 
+		; verifica se morreu 
+		;loadn r6, #2    ; r6=2  
+		;cmp r6, r7      ; morreu?
+		;jeq gameover    ; sim: pula para rotina de game over 
+		
+		
    mainPass_Fim:
 
 	halt
@@ -1503,6 +1509,8 @@ ChecaPalavra:
 	push r2
 	push r3
 	push r4
+	push r5
+	push r7
 
 	loadn r1, #PalavraDigitada 		; Endereco de inicio da palavra
 	load r2, TamanhoPalavra
@@ -1517,10 +1525,16 @@ ChecaPalavra:
 
 		call ChecaLetra
 
+		
+		cmp r2, r7   ; ganhou ----- comparação errada
+		jne ganhou    ; sim: pula para rotina de ganhou
+		
 		inc r3
 		cmp r3, r2 			; Se tiver acabado a palavra, sai
 		jne checaPalavra_Loop
-
+	
+		
+		
 
 	pop r4
 	pop r3
@@ -1539,8 +1553,11 @@ ChecaLetra: ; r0 = Letra a ser checada com todas as outras
 	push r4
 	push r5
 	push r6
-
-	load r1, Palavra 	; Endereco da palavra
+	push r7 
+	
+	loadn r7, #0
+	
+	load r1, Palavra 		; Endereco da palavra
 	load r2, TamanhoPalavra	
 	loadn r3, #0 		; Contador
 	loadn r5, #0 		; Por padrao, a letra sera branca
@@ -1563,11 +1580,16 @@ ChecaLetra: ; r0 = Letra a ser checada com todas as outras
 		cmp r6, r3 			; Caso a letra esteja no lugar certo
 		jne letraAmarela
 		loadn r5, #512 		; Cor verde
+		inc r7
+
 		jmp checaLetra_Sai
 
 		letraAmarela:
 			loadn r5, #2816
+			
 			jmp checaLetra_Continue
+
+
 
 
    checaLetra_Sai:
@@ -1577,6 +1599,7 @@ ChecaLetra: ; r0 = Letra a ser checada com todas as outras
 	add r0, r0, r5 		; Colore a letra
 
 	outchar r0, r4
+
 
   	pop r6
 	pop r5

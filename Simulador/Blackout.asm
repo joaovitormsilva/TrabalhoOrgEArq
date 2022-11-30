@@ -200,12 +200,14 @@ main:
 			
 		;;pula_pisca_tela:	
 ;************************************************************************************	
-			
+			pula_pisca_tela:	
+			R7
 		; delay do jogo
 		call Delay
 		inc R0 	;c++
 		jmp loop
-		
+		pula_pisca_tela
+
 	gameover:
 		call Delay2
 		call ApagaTela
@@ -626,7 +628,7 @@ ImprimeStr2:	;  Rotina de Impresao de Mensagens:    r0 = Posicao da tela que o p
 	loadn r3, #'\0'	; Criterio de parada
 	loadn r5, #' '	; Espaco em Branco
 
-   ImprimeStr
+ 
    
    2_Loop:	
 		loadi r4, r1
