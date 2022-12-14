@@ -201,12 +201,12 @@ main:
 		;;pula_pisca_tela:	
 ;************************************************************************************	
 			pula_pisca_tela:	
-			R7
+			
 		; delay do jogo
 		call Delay
 		inc R0 	;c++
 		jmp loop
-		pula_pisca_tela
+		
 
 	gameover:
 		call Delay2
